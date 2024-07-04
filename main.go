@@ -15,19 +15,19 @@ const monitoramentos = 2
 const delay = 5
 
 func main() {
-	exibeIntroducao()
+	showIntro()
 
 	for {
-		exibeMenu()
+		showMenu()
 
-		comando := leComando()
+		comando := readComand()
 
 		switch comando {
 		case 1:
-			iniciarMonitoramento()
+			startMonit()
 		case 2:
 			fmt.Println("Exibindo Logs...")
-			imprimeLogs()
+			printLogs()
 		case 0:
 			fmt.Println("Saindo do programa")
 			os.Exit(0)
@@ -39,20 +39,20 @@ func main() {
 
 }
 
-func exibeIntroducao() {
+func showIntro() {
 	nome := "Douglas"
 	versao := 1.2
 	fmt.Println("Olá, sr.", nome)
 	fmt.Println("Este programa está na versão", versao)
 }
 
-func exibeMenu() {
+func showMenu() {
 	fmt.Println("1- Iniciar Monitoramento")
 	fmt.Println("2- Exibir Logs")
 	fmt.Println("0- Sair do Programa")
 }
 
-func leComando() int {
+func readComand() int {
 	var comandoLido int
 	fmt.Scan(&comandoLido)
 	fmt.Println("O comando escolhido foi", comandoLido)
@@ -61,14 +61,14 @@ func leComando() int {
 	return comandoLido
 }
 
-func iniciarMonitoramento() {
+func startMonit() {
 	fmt.Println("Monitorando...")
-	sites := leSitesDoArquivo()
+	sites := readSiteList()
 
 	for i := 0; i < monitoramentos; i++ {
 		for i, site := range sites {
 			fmt.Println("Testando site", i, ":", site)
-			testaSite(site)
+			testSites(site)
 		}
 		time.Sleep(delay * time.Second)
 		fmt.Println("")
@@ -77,7 +77,7 @@ func iniciarMonitoramento() {
 	fmt.Println("")
 }
 
-func testaSite(site string) {
+func testSites(site string) {
 	resp, err := http.Get(site)
 
 	if err != nil {
@@ -86,14 +86,14 @@ func testaSite(site string) {
 
 	if resp.StatusCode == 200 {
 		fmt.Println("Site:", site, "foi carregado com sucesso!")
-		registraLog(site, true)
+		registerLogs(site, true)
 	} else {
 		fmt.Println("Site:", site, "esta com problemas. Status Code:", resp.StatusCode)
-		registraLog(site, false)
+		registerLogs(site, false)
 	}
 }
 
-func leSitesDoArquivo() []string {
+func readSiteList() []string {
 	var sites []string
 	arquivo, err := os.Open("sites.txt")
 
@@ -118,7 +118,7 @@ func leSitesDoArquivo() []string {
 	return sites
 }
 
-func registraLog(site string, status bool) {
+func registerLogs(site string, status bool) {
 
 	arquivo, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
@@ -131,7 +131,7 @@ func registraLog(site string, status bool) {
 	arquivo.Close()
 }
 
-func imprimeLogs() {
+func printLogs() {
 
 	arquivo, err := os.ReadFile("log.txt")
 

@@ -4,61 +4,54 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/Bruno-Cunha-Souza/WebKeeper/internal/database"
+	"github.com/Bruno-Cunha-Souza/WebKeeper/internal/models"
 )
 
-const monitoramentos = 2
-const delay = 5
+const delay = 2
 
 func StartMonit() {
-	fmt.Println("Monitorando...")
-	sites := "http://httpstat.us/random/200,201,500-504"
+	for {
+		var sites []models.Site
+		result := database.DB.Find(&sites)
 
-	for i := 0; i < monitoramentos; i++ {
-		for j, site := range sites {
-			fmt.Println("Testando site", j, ":", site)
-			testSites(sites)
+		if result.Error != nil {
+			fmt.Println("Erro ao buscar sites:", result.Error)
+			return
+		}
+		for _, site := range sites {
+			fmt.Printf("Testando site: %s\n", site.Nome)
+			testSite(site.URL)
 		}
 		time.Sleep(delay * time.Second)
-		fmt.Println("")
 	}
-
-	fmt.Println("")
 }
-func testSites(site string) {
-	resp, err := http.Get(site)
 
+func testSite(url string) {
+	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Ocorreu um erro:", err)
+		fmt.Println("Ocorreu um erro ao conectar ao URL:", err)
+		return
 	}
+	defer resp.Body.Close()
 
-	if resp.StatusCode == 200 {
-		fmt.Println("Site:", site, "foi carregado com sucesso!")
-	} else {
-		fmt.Println("Site:", site, "esta com problemas. Status Code:", resp.StatusCode)
+	switch resp.StatusCode {
+	case 200:
+		fmt.Println("URL:", url, "\nSuccessful connecting. Status Code:", resp.StatusCode)
+	case 400:
+		fmt.Println("URL:", url, "\nBad Request. Status Code:", resp.StatusCode)
+	case 401:
+		fmt.Println("URL:", url, "\nUnauthorized. Status Code:", resp.StatusCode)
+	case 404:
+		fmt.Println("URL:", url, "\nNot Found. Status Code:", resp.StatusCode)
+	case 500:
+		fmt.Println("URL:", url, "\nInternal Server Error. Status Code:", resp.StatusCode)
+	case 502:
+		fmt.Println("URL:", url, "\nBad Gateway. Status Code:", resp.StatusCode)
+	case 504:
+		fmt.Println("URL:", url, "\nGateway Timeout. Status Code:", resp.StatusCode)
+	default:
+		fmt.Println("URL:", url, "\nError connecting. Status Code:", resp.StatusCode)
 	}
 }
-
-// func readSiteList() []string {
-// 	var sites []string
-// 	arquivo, err := os.Open("sites.txt")
-
-// 	if err != nil {
-// 		fmt.Println("Ocorreu um erro:", err)
-// 	}
-
-// 	leitor := bufio.NewReader(arquivo)
-// 	for {
-// 		linha, err := leitor.ReadString('\n')
-// 		linha = strings.TrimSpace(linha)
-
-// 		sites = append(sites, linha)
-
-// 		if err == io.EOF {
-// 			break
-// 		}
-
-// 	}
-
-// 	arquivo.Close()
-// 	return sites
-// }

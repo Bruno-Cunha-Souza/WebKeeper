@@ -12,5 +12,5 @@ func HandleRequests() {
 	r.POST("/CreateSite", controllers.CreateSite)
 	r.DELETE("/DeleteSite", controllers.DeleteSite)
 	r.PATCH("/EditSite", controllers.EditSite)
-	r.Run()
+	r.Run(":3000")
 }

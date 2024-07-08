@@ -13,5 +13,6 @@ type LogSite struct {
 	SiteID     uint
 	Site       Site
 	StatusCode int
+	LogDes     string
 	Hora       time.Time
 }

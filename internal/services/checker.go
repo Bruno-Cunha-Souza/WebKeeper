@@ -9,7 +9,7 @@ import (
 	"github.com/Bruno-Cunha-Souza/WebKeeper/internal/models"
 )
 
-const delay = 2
+const delay = 5
 
 func StartMonit() {
 	for {
@@ -21,37 +21,46 @@ func StartMonit() {
 			return
 		}
 		for _, site := range sites {
-			fmt.Printf("Testando site: %s\n", site.Nome)
-			testSite(site.URL)
+			testSite(site)
 		}
 		time.Sleep(delay * time.Second)
 	}
 }
 
-func testSite(url string) {
-	resp, err := http.Get(url)
+func testSite(site models.Site) {
+	resp, err := http.Get(site.URL)
 	if err != nil {
 		fmt.Println("Ocorreu um erro ao conectar ao URL:", err)
 		return
 	}
-	defer resp.Body.Close()
 
-	switch resp.StatusCode {
+	defer resp.Body.Close()
+	statusCode := resp.StatusCode
+
+	switch statusCode {
 	case 200:
-		fmt.Println("URL:", url, "\nSuccessful connecting. Status Code:", resp.StatusCode)
+		logDes := "Sucess Connecting"
+		saveLogsSite(site.ID, statusCode, logDes)
 	case 400:
-		fmt.Println("URL:", url, "\nBad Request. Status Code:", resp.StatusCode)
+		logDes := "Bad Request"
+		saveLogsSite(site.ID, statusCode, logDes)
 	case 401:
-		fmt.Println("URL:", url, "\nUnauthorized. Status Code:", resp.StatusCode)
+		logDes := "Unauthorized"
+		saveLogsSite(site.ID, statusCode, logDes)
 	case 404:
-		fmt.Println("URL:", url, "\nNot Found. Status Code:", resp.StatusCode)
+		logDes := "Not Found"
+		saveLogsSite(site.ID, statusCode, logDes)
 	case 500:
-		fmt.Println("URL:", url, "\nInternal Server Error. Status Code:", resp.StatusCode)
+		logDes := "Internal Server Error"
+		saveLogsSite(site.ID, statusCode, logDes)
 	case 502:
-		fmt.Println("URL:", url, "\nBad Gateway. Status Code:", resp.StatusCode)
+		logDes := "Bad Gateway"
+		saveLogsSite(site.ID, statusCode, logDes)
 	case 504:
-		fmt.Println("URL:", url, "\nGateway Timeout. Status Code:", resp.StatusCode)
+		logDes := "Gateway Timeout"
+		saveLogsSite(site.ID, statusCode, logDes)
 	default:
-		fmt.Println("URL:", url, "\nError connecting. Status Code:", resp.StatusCode)
+		logDes := "Error conecting"
+		saveLogsSite(site.ID, statusCode, logDes)
 	}
 }

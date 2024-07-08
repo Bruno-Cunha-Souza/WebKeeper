@@ -8,6 +8,9 @@ import (
 func HandleRequests() {
 	r := gin.Default()
 	r.GET("/sites", controllers.ShowSites)
-	r.POST("/add_site", controllers.CreateSite)
+	r.GET("/SearchSite", controllers.SearchSite)
+	r.POST("/CreateSite", controllers.CreateSite)
+	r.DELETE("/DeleteSite", controllers.DeleteSite)
+	r.PATCH("/EditSite", controllers.EditSite)
 	r.Run()
 }
